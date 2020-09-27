@@ -1,5 +1,6 @@
 from flask import *
 import paramiko
+import os.path
 import re
 from config import Config
 
@@ -64,9 +65,18 @@ def dc_list():
 
 @app.route('/dc_create',methods = ['POST'])
 def dc_create():
-    li_output = {}
-    return li_output
-
+    file_path = "..../All_Topology/"
+    # Get file name, network topology using the front-end api
+    topo_name, topo_data = request.form.get('topo_name'), request.form.get('topo_data') # ajax/ json need to rechake
+    file = open(file_path+topo_name".yml", "w+")
+    file.write(topo_data)
+    file.close()
+    cmd = "pl --create "+file.name
+    try:
+      subprocess.call(cmd, shell=True, stderr=subprocess.STDOUT)
+      return "successfully created "+ topo_name+ " Network"
+    except subprocess.CalledProcessError as e:
+      raise RuntimeError("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
 
 if __name__ == '__main__':
    app.run(debug = True)
